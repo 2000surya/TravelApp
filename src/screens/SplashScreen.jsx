@@ -1,7 +1,6 @@
-import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Colors } from "../constants/Colors";
-import { Fonts } from "../constants/Fonsts";
+import { Fonts } from "../constants/Fonts";
 
 const SplashScreen = () => {
   return (

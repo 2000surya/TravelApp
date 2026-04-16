@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import CustomButton from "../components/CustomButton";
 import { Colors } from "../constants/Colors";
 import { Fonts } from "../constants/Fonts";
 import { GlobalStyle } from "../constants/GlobalStyle";
@@ -43,24 +44,29 @@ const data = [
 ];
 
 const RenderItem = ({ item }) => (
-  <View>
-    <View style={styles.imageWrapper}>
-      <Image source={item.image} style={[styles.imageStyle, { width }]} />
+  <View style={{ width }}>
+    {/* Wrapper for spacing */}
+    <View>
+      <Image source={item.image} style={styles.imageStyle} />
     </View>
+
     <View style={styles.content}>
-      <View>
-        <Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.titleStyle}>
           {item.title}
-          <Text>{item.subTitle}</Text>
+          <Text style={styles.subTitle}>{item.subTitle}</Text>
         </Text>
+
+        <View style={styles.curveUnderlineWrapper}>
+          <View style={styles.curveUnderline} />
+        </View>
       </View>
-      {/* <View style={{ flex: 1 }}>
-        <Text numberOfLines={3}>{item.discription}</Text>
-      </View> */}
+
+      <Text style={styles.description}>{item.discription}</Text>
     </View>
   </View>
 );
-const OnboardingScreen = () => {
+const OnboardingScreen = ({ navigation }) => {
   const flatRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -71,7 +77,13 @@ const OnboardingScreen = () => {
       setCurrentIndex(index);
     }
   });
-
+  const handleNext = () => {
+    if (currentIndex < data.length - 1) {
+      flatRef.current?.scrollToIndex({ index: currentIndex + 1 });
+    } else {
+      navigation?.navigate("SignInScreen"); // replace "Home" with your screen name
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={"black"} />
@@ -90,9 +102,25 @@ const OnboardingScreen = () => {
       </View>
 
       <View style={styles.dotContainer}>
-        {data.map((item) => (
-          <View style={styles.dotStyle} key={item.id} />
+        {data.map((item, index) => (
+          <View
+            style={[
+              styles.dotStyle,
+              currentIndex === index && {
+                backgroundColor: Colors.primary,
+                width: 30,
+              },
+            ]}
+            key={item.id}
+          />
         ))}
+      </View>
+
+      <View style={[GlobalStyle.padding, { marginTop: 20, marginBottom: 10 }]}>
+        <CustomButton
+          text={currentIndex === 0 ? "Get started" : "Next"}
+          onPress={handleNext}
+        />
       </View>
     </SafeAreaView>
   );
@@ -103,33 +131,53 @@ export default OnboardingScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
+    justifyContent: "space-between",
   },
 
   imageStyle: {
     height: 450,
     resizeMode: "cover",
+    width,
+    paddingHorizontal: 15,
   },
   content: {
-    borderWidth: 1,
     ...GlobalStyle.margin,
     ...GlobalStyle.padding,
+    alignItems: "center",
   },
   dotContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    justifyContent: "center",
+    marginTop: 20,
   },
   dotStyle: {
-    width: 30,
-    height: 30,
-    borderWidth: 1,
+    width: 8,
+    height: 5,
+    backgroundColor: Colors.accent,
+    borderRadius: 20,
   },
   titleContainer: {
     alignItems: "center",
   },
-  titleStyle: {
-    fontSize: Fonts.xxxl,
-    color: Colors.textPrimary,
+  description: {
+    fontSize: Fonts.xxl,
+    color: Colors.textDark,
   },
-  subTitle: {},
+  extraStyle: {
+    borderBottomColor: Colors.secondary,
+    borderBottomWidth: 3,
+    borderBottomLeftRadius: 5,
+  },
+  titleStyle: {
+    fontSize: Fonts.extraLarge,
+    color: Colors.textPrimary,
+    fontWeight: "bold",
+  },
+  subTitle: {
+    color: Colors.secondary,
+    fontSize: Fonts.extraLarge,
+  },
 });
